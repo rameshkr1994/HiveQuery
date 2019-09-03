@@ -1,0 +1,162 @@
+Find unique records without distinct-
+----------------------------------------------------
+  SELECT gender
+    FROM age_tab
+GROUP BY gender
+---------------------------------------------------
+Select gender
+From
+(
+   Select gender
+          row_number() over (partition by gender order by gender) group_rank
+   From   age_tab
+)
+Where  group_rank = 1;
+-------------------------------------------------------------
+
+     
+	 select  inline(array(rec))
+
+from   (select  struct(*)   as rec
+
+               ,row_number() over 
+                (
+                    partition by    gender 
+                    order by        gender
+                ) as rn
+
+        from    age_tab t
+        ) t
+
+where   rn = 1
+==================
+delete duplicates
+===================
+Delete from <tablename>
+where rowid not in (select max(rowid) from <tablename> group by <unique columns or primary key>);
+-----------------------------------
+Create temporary table products_temp As
+Select productid, price
+From
+(
+   Select productid, price,
+          row_number() over (partition by productId order by price) group_rank
+   From   products
+)
+Where  group_rank = 1;
+==================================
+count() windowing func
+===============================
+LQJ	F	4 GDQLHOOH FW��PDBV ODQGLQJ�QM	CKDQJMLDQSLQJ19540404F	65	4
+2	1962-03-05	110841624	URELQVRQOLOOLDQ	F	127 IROVRP DYH��DWODQWLF FLWB�QM�08401	URELQVRQOLOOLDQ19620305F	57	4
+3	1934-12-07	3HZN15578940	REHUJSDWULFLD	F	1731 URXWH 9 XQLW 10��RFHDQ YLHZ�QM�08230	REHUJSDWULFLD19341207F	85	4
+4	1988-01-03	YKZ3HZN04964930	IHOGPDQVWHSKDQLH	F	8 EHUNVKLUH DYH��OLQZRRG�QM�08221	IHOGPDQVWHSKDQLH19880103F	31	4
+5	1958-09-30	70569005	KRSNLQVZLOOLDP	M	104 Q 1VW VW��SOHDVDQWYLOOH�QM	KRSNLQVZLOOLDP19580930M	61	6
+6	1970-03-04	3HZN42659900	KDUUHUZLOOLDP	M	2 WUDGHZLQGV DYH��EDUQHJDW�QM�08005	KDUUHUZLOOLDP19700304M	49	6
+7	1972-09-06	JGW3HZN10654870	ODPDLQDQLFKRODV	M	9 IDLUYLHZ GU��HJJ KDUERU WZS�QM�08234	ODPDLQDQLFKRODV19720906M	47	6
+8	1987-08-19	Q1S124038641001	VDXHUVGDQLHO	M	6129 PLOO UG��HJJ KDUERU WRZQV�QM�08234	VDXHUVGDQLHO19870819M	32	6
+9	1934-09-09	33858058512	GHHOHBUDBPRQG	M	400 JRUKDP DYH��FDSH PDB�QM�08204	GHHOHBUDBPRQG19340909M	85	6
+10	1986-10-02	UXI740233599	RUWLCUREHUWR	M	40 GHOPDU GU��EULJDQWLQH�QM�08203	RUWLCUREHUWR19861021M	33	6
+===========================
+select * ,
+count(*) over (partition by gender order by gender asc) as pat_cnt 
+from age_tab;
+=======================================
+sum() windowing func
+===========================================
+age_tab.gender	age_tab.address	age_tab.hrk	age_tab.ages	total_ins_amt
+ 	age_tab.dob	age_tab.patientid	age_tab.name	age_tab.gender	age_tab.address	age_tab.hrk	age_tab.ages	total_ins_amt
+1	1954-04-04	Q1S122756086001	CKDQJMLDQSLQJ	F	4 GDQLHOOH FW��PDBV ODQGLQJ�QM	CKDQJMLDQSLQJ19540404F	65	238
+2	1962-03-05	110841624	URELQVRQOLOOLDQ	F	127 IROVRP DYH��DWODQWLF FLWB�QM�08401	URELQVRQOLOOLDQ19620305F	57	238
+3	1934-12-07	3HZN15578940	REHUJSDWULFLD	F	1731 URXWH 9 XQLW 10��RFHDQ YLHZ�QM�08230	REHUJSDWULFLD19341207F	85	238
+4	1988-01-03	YKZ3HZN04964930	IHOGPDQVWHSKDQLH	F	8 EHUNVKLUH DYH��OLQZRRG�QM�08221	IHOGPDQVWHSKDQLH19880103F	31	238
+5	1958-09-30	70569005	KRSNLQVZLOOLDP	M	104 Q 1VW VW��SOHDVDQWYLOOH�QM	KRSNLQVZLOOLDP19580930M	61	307
+6	1970-03-04	3HZN42659900	KDUUHUZLOOLDP	M	2 WUDGHZLQGV DYH��EDUQHJDW�QM�08005	KDUUHUZLOOLDP19700304M	49	307
+7	1972-09-06	JGW3HZN10654870	ODPDLQDQLFKRODV	M	9 IDLUYLHZ GU��HJJ KDUERU WZS�QM�08234	ODPDLQDQLFKRODV19720906M	47	307
+8	1987-08-19	Q1S124038641001	VDXHUVGDQLHO	M	6129 PLOO UG��HJJ KDUERU WRZQV�QM�08234	VDXHUVGDQLHO19870819M	32	307
+9	1934-09-09	33858058512	GHHOHBUDBPRQG	M	400 JRUKDP DYH��FDSH PDB�QM�08204	GHHOHBUDBPRQG19340909M	85	307
+10	1986-10-02	UXI740233599	RUWLCUREHUWR	M	40 GHOPDU GU��EULJDQWLQH�QM�08203	RUWLCUREHUWR19861021M	33	307
+================================================---------------------------------------------------------------------------
+select*, 
+ins_amt, 
+sum(ages) over (partition by gender order by gender asc) as total_ins_amt 
+from age_tab ;
+========================================================================
+MIN/MAX() Windowing func
+++++++++++++++++++++++++++++++++++
+Calculate Min and Max of insured amount of all
+patients within each department. Query and output as follows:
+++++++++++++++++++++++++++++++++
+select gender , 
+min(ages) over (partition by gender order by gender asc) as min_ins_amt, 
+max(ages) over (partition by gender order by gender asc) as max_ins_amt 
+from age_tab ;
+===================================================
+gender	min_ins_amt	max_ins_amt
+ 	gender	min_ins_amt	max_ins_amt
+1	F	31	85
+2	F	31	85
+3	F	31	85
+4	F	31	85
+5	M	32	85
+6	M	32	85
+7	M	32	85
+8	M	32	85
+9	M	32	85
+10	M	32	85
+=====================================================
+find latest three records in hive
+==========================================================
+Hadoop Hive LEAD and LAG Analytic Function
+============================================
+select hrk,gender , 
+lead(hrk,1,0) over (partition by hrk order by gender asc ) as lead_ins_amt, 
+lag(hrk,1,0) over (partition by hrk order by gender asc ) as lag_ins_amt 
+from age_tab;
+========================
+Hadoop Hive FIRST_VALUE and LAST_VALUE Analytic Function
+==============================
+Compute the lowest and highest insured patients in each department. Query and output as follows:
+============================================
+select hrk, 
+gender, 
+first_value(hrk) over (partition by gender order by hrk ) as low_ins_amt, 
+last_value(ins_amt) over (partition by gender order by hrk ) as high_ins_amt 
+from age_tab;
+================================================
+Hadoop Hive ROW_NUMBER, RANK and DENSE_RANK Analytical Functions
+================================================
+The row_number Hive analytic function is used to assign unique values to each row or rows within group 
+based on the column values used in OVER clause.
+
+The Rank Hive analytic function is used to get rank of the rows in column or within group. Rows with equal 
+values receive the same rank with next rank value skipped. The rank analytic function is used in top n analysis.
+
+The Dense rank Hive function returns the rank of a value in a group. Rows with equal values for ranking 
+criteria receive the same rank and assign rank in sequential order i.e. no rank values are skipped. 
+The rank analytic function is used in top n analysis
+===================================================
+select hrk, 
+gender, 
+ 
+row_number() over (order by hrk) as rn, 
+rank() over (order by hrk ) as rk, 
+dense_rank() over (order by hrk ) as dense_rk 
+from age_tab;
+============================================================
+   hrk	                  gender rn rk  dense_rk 
+1	CKDQJMLDQSLQJ19540404F	F	1	1	1
+2	URELQVRQOLOOLDQ19620305F	F	2	1	1
+3	REHUJSDWULFLD19341207F	F	3	1	1
+4	IHOGPDQVWHSKDQLH19880103F	F	4	1	1
+5	KRSNLQVZLOOLDP19580930M	M	5	5	2
+6	KDUUHUZLOOLDP19700304M	M	6	5	2
+7	ODPDLQDQLFKRODV19720906M	M	7	5	2
+8	VDXHUVGDQLHO19870819M	M	8	5	2
+9	GHHOHBUDBPRQG19340909M	M	9	5	2
+10	RUWLCUREHUWR19861021M	M	10	5	2
+=============================================
+
+
+
+  
